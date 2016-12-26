@@ -4,7 +4,8 @@
   "description": "Assertly add-on for sinon",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "debug": "devtool node_modules/mocha/bin/_mocha -qc --break -- ./test/specs/**/*.js",
+    "test": "mocha ./test/specs/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,10 @@
   "homepage": "https://github.com/dongryphon/assertly-sinon#readme",
   "devDependencies": {
     "assertly": "^1.0.0-rc.0",
+    "mocha": "^3.1.0",
     "sinon": "^1.17.6"
+  },
+  "engines": {
+    "node": ">=6.0.0"
   }
 }
