@@ -23,6 +23,9 @@ Specifically, the following naming convention is used:
     </tr>
 </table>
 
+See these documents for the mapping of the sinon [Spy API](docs/spy.md) and
+[Spy Call API](docs/spyCall.md).
+
 ### call
 
 **`call(n)`**
