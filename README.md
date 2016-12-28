@@ -18,6 +18,9 @@ Specifically, the following naming convention is used:
     <tr>
         <td>spyCall</td><td>A call to a spy returned by <tt>sinon.spy().getCall()</tt></td>
     </tr>
+    <tr>
+        <td>spyOrCall</td><td>Either a <tt>spy</tt> or a <tt>spyCall</tt></td>
+    </tr>
 </table>
 
 ### call
