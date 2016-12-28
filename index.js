@@ -68,7 +68,7 @@ module.exports = {
                 return spyOrCall.calledOn(object);
             },
 
-            calledWith (spyCall, ...args) {
+            calledWith (spyOrCall, ...args) {
                 let mod = this._modifiers;
                 let fn = mod.only ? 'alwaysCalledWith' : 'calledWith';
 
@@ -79,7 +79,14 @@ module.exports = {
                     fn = EXACT[fn];
                 }
 
-                return spyCall[fn](...args);
+                return spyOrCall[fn](...args);
+            },
+
+            throw: {
+                evaluate: function fn (method, ex) {
+                    //
+                    debugger;
+                }
             }
         });
 

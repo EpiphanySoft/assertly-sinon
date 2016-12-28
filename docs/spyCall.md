@@ -8,7 +8,7 @@ There are two ways to arrive at a `spyCall`. The first is to pass a `spyCall` to
 
     expect(spy.firstCall).to.be...
 
-The second is to use this add-ons helpers:
+The second is to start with a [spy](./spy.md) and use helpers provided by this add-on:
 
     expect(spy).firstCall.to.be...
 
@@ -38,5 +38,3 @@ The following table shows the mapping of these API's to equivalent assertions.
     </tr>
 </table>
 <br>
-
-When the Spy API returns a Spy Call, see [spyCall](./spyCall.md).

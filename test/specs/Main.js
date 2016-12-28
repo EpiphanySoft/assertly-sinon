@@ -282,5 +282,14 @@ describe('Main', function () {
                 }
             });
         });
+
+        describe.only('throw', function () {
+            it('should fail if not thrown', function () {
+                debugger;
+                expect(() => {
+                    expect(Subject.add).firstCall.to.throw();
+                }).to.throw(`Ex`);
+            });
+        });
     }); // spyCalls
 });
