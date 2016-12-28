@@ -42,7 +42,7 @@ describe('Main', function () {
                 expect(Subject.add).to.be.called();
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to be called`);
+                expect(e.message).to.be(`Expected add() to be called`);
             }
         });
 
@@ -57,7 +57,7 @@ describe('Main', function () {
                 expect(Subject.add).to.not.be.called();
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to not be called`);
+                expect(e.message).to.be(`Expected add() to not be called`);
             }
         });
 
@@ -74,24 +74,24 @@ describe('Main', function () {
                 expect(Subject.add).to.not.be.called();
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to not be called`);
+                expect(e.message).to.be(`Expected add() to not be called`);
             }
         });
     });
 
     describe('called(0)', function () {
         it('should work with a single call', function () {
-            let ret = Subject.add(2, 4);
+            // let ret = Subject.add(2, 4);
+            //
+            // expect(ret).to.be(6);
 
-            expect(ret).to.be(6);
-
-            expect(Subject.add).to.be.called();
+            expect(Subject.add).to.be.called(0);
 
             try {
-                expect(Subject.add).to.not.be.called();
+                expect(Subject.add).not.to.be.called(0);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to not be called`);
+                expect(e.message).to.be(`Expected add() not to be called 0 times`);
             }
         });
 
@@ -102,13 +102,13 @@ describe('Main', function () {
             ret = Subject.add(4, 6);
             expect(ret).to.be(10);
 
-            expect(Subject.add).to.be.called();
+            expect(Subject.add).to.not.be.called(0);
 
             try {
-                expect(Subject.add).to.not.be.called();
+                expect(Subject.add).to.be.called(0);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to not be called`);
+                expect(e.message).to.be(`Expected add() to be called 0 times not twice`);
             }
         });
     });
@@ -125,14 +125,14 @@ describe('Main', function () {
                 expect(Subject.add).to.not.be.called(1);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to not be called once`);
+                expect(e.message).to.be(`Expected add() to not be called once`);
             }
 
             try {
                 expect(Subject.add).to.be.called(3);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to be called thrice not once`);
+                expect(e.message).to.be(`Expected add() to be called thrice not once`);
             }
         });
 
@@ -149,14 +149,48 @@ describe('Main', function () {
                 expect(Subject.add).to.be.called(1);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to be called once not twice`);
+                expect(e.message).to.be(`Expected add() to be called once not twice`);
             }
 
             try {
                 expect(Subject.add).to.be.called(4);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected [Spy: add] to be called 4 times not twice`);
+                expect(e.message).to.be(`Expected add() to be called 4 times not twice`);
+            }
+        });
+    });
+
+    describe.only('calledOn', function () {
+        it('should work with a single call', function () {
+            let ret = Subject.add(2, 4);
+
+            expect(ret).to.be(6);
+
+            expect(Subject.add.firstCall).to.be.calledOn(Subject);
+
+            try {
+                expect(Subject.add.firstCall).to.not.be.calledOn(Subject);
+            }
+            catch (e) {
+                expect(e.message).to.be(`Expected add() to not be called once`);
+            }
+        });
+    });
+
+    describe('firstCall', function () {
+        it('should operate on first call', function () {
+            let ret = Subject.add(2, 4);
+
+            expect(ret).to.be(6);
+
+            expect(Subject.add).firstCall.to.be.calledOn(Subject);
+
+            try {
+                expect(Subject.add).firstCall.to.not.be.calledOn(Subject);
+            }
+            catch (e) {
+                expect(e.message).to.be(`Expected add() to not be called once`);
             }
         });
     });

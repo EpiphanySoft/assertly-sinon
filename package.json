@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/dongryphon/assertly-sinon#readme",
   "devDependencies": {
-    "assertly": "^1.0.0-rc.0",
+    "assertly": "^1.0.0-rc.1",
     "mocha": "^3.1.0",
     "sinon": "^1.17.6"
   },
