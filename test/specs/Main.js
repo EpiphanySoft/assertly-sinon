@@ -20,18 +20,36 @@ describe('Main', function () {
         }
     };
 
+    function spy (object, method) {
+        let ret = sinon.spy(object, method);
+        let spy = object[method];
+        let getCall = spy.getCall;
+
+        spy.inspect = function () {
+            return `${method}()`;
+        };
+
+        spy.getCall = function (index) {
+            let call = getCall.call(this, index);
+
+            if (call) {
+                call.inspect = function () {
+                    return `${method}().call[${index}]`;
+                };
+            }
+
+            return call;
+        };
+
+        return ret;
+    }
+
     beforeEach(function () {
-        sinon.spy(Subject, 'add');
+        spy(Subject, 'add');
     });
 
     afterEach(function () {
         Subject.add.restore();
-    });
-
-    describe('smoke', function () {
-        it('should not smoke', function () {
-            //expect(A.registry.foo).to.not.be(undefined);
-        });
     });
 
     describe('called', function () {
@@ -61,7 +79,7 @@ describe('Main', function () {
             }
         });
 
-        it('should work with a two calls', function () {
+        it('should work with two calls', function () {
             let ret = Subject.add(2, 4);
             expect(ret).to.be(6);
 
@@ -95,7 +113,7 @@ describe('Main', function () {
             }
         });
 
-        it('should work with a two calls', function () {
+        it('should work with two calls', function () {
             let ret = Subject.add(2, 4);
             expect(ret).to.be(6);
 
@@ -136,7 +154,7 @@ describe('Main', function () {
             }
         });
 
-        it('should work with a two calls', function () {
+        it('should work with two calls', function () {
             let ret = Subject.add(2, 4);
             expect(ret).to.be(6);
 
@@ -161,7 +179,7 @@ describe('Main', function () {
         });
     });
 
-    describe.only('calledOn', function () {
+    describe('calledOn', function () {
         it('should work with a single call', function () {
             let ret = Subject.add(2, 4);
 
@@ -173,7 +191,7 @@ describe('Main', function () {
                 expect(Subject.add.firstCall).to.not.be.calledOn(Subject);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected add() to not be called once`);
+                expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
             }
         });
     });
@@ -190,7 +208,28 @@ describe('Main', function () {
                 expect(Subject.add).firstCall.to.not.be.calledOn(Subject);
             }
             catch (e) {
-                expect(e.message).to.be(`Expected add() to not be called once`);
+                expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
+            }
+        });
+    });
+
+    describe('secondCall', function () {
+        it('should operate on second call', function () {
+            let ret = Subject.add(2, 4);
+
+            expect(ret).to.be(6);
+
+            ret = Subject.add(5, 6);
+
+            expect(ret).to.be(11);
+
+            expect(Subject.add).secondCall.to.be.calledOn(Subject);
+
+            try {
+                expect(Subject.add).secondCall.to.not.be.calledOn(Subject);
+            }
+            catch (e) {
+                expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
             }
         });
     });

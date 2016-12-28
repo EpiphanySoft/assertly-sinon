@@ -11,23 +11,9 @@ function timesName (n) {
 
 module.exports = {
     init (Assert, Util) {
-        const print = Assert.print;
-
-        Assert.print = function (obj) {
-            debugger;
-            if (obj) {
-                if (obj.isSinonProxy) {
-                    return `${obj.displayName}()`;
-                }
-                if (obj.proxy && obj.calledWith) {
-                    return `${obj.proxy.displayName}()`;
-                }
-            }
-
-            return print.apply(this, arguments);
-        };
-
         Assert.register({
+            exactly: true,
+
             called: {
                 evaluate (spy, count) {
                     let calls = spy.callCount;
@@ -62,13 +48,17 @@ module.exports = {
 
             calledOn (spyCall, object) {
                 return spyCall.calledOn(object);
-            },
-
-            firstCall: {
-                get (spyOrCall) {
-                    return new Assert(spyOrCall.firstCall, this);
-                }
             }
-        })
+        });
+
+        ['firstCall', 'secondCall', 'thirdCall', 'lastCall'].forEach(property => {
+            Assert.register({
+                [property]: {
+                    get (spyOrCall) {
+                        return new Assert(spyOrCall[property], this);
+                    }
+                }
+            });
+        });
     }
 };
