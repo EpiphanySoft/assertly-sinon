@@ -179,58 +179,108 @@ describe('Main', function () {
         });
     });
 
-    describe('calledOn', function () {
-        it('should work with a single call', function () {
+    describe('spyCalls', function () {
+        beforeEach(function () {
             let ret = Subject.add(2, 4);
-
-            expect(ret).to.be(6);
-
-            expect(Subject.add.firstCall).to.be.calledOn(Subject);
-
-            try {
-                expect(Subject.add.firstCall).to.not.be.calledOn(Subject);
-            }
-            catch (e) {
-                expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
-            }
-        });
-    });
-
-    describe('firstCall', function () {
-        it('should operate on first call', function () {
-            let ret = Subject.add(2, 4);
-
-            expect(ret).to.be(6);
-
-            expect(Subject.add).firstCall.to.be.calledOn(Subject);
-
-            try {
-                expect(Subject.add).firstCall.to.not.be.calledOn(Subject);
-            }
-            catch (e) {
-                expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
-            }
-        });
-    });
-
-    describe('secondCall', function () {
-        it('should operate on second call', function () {
-            let ret = Subject.add(2, 4);
-
             expect(ret).to.be(6);
 
             ret = Subject.add(5, 6);
-
             expect(ret).to.be(11);
 
-            expect(Subject.add).secondCall.to.be.calledOn(Subject);
+            ret = Subject.add(1, 2);
+            expect(ret).to.be(3);
 
-            try {
-                expect(Subject.add).secondCall.to.not.be.calledOn(Subject);
-            }
-            catch (e) {
-                expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
-            }
+            ret = Subject.add(3, 2);
+            expect(ret).to.be(5);
         });
-    });
+
+        describe('call', function () {
+            it('should operate on call(1)', function () {
+                expect(Subject.add).call(1).to.be.calledOn(Subject);
+
+                try {
+                    expect(Subject.add).call(1).to.not.be.calledOn(Subject);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[1] to not be calledOn { add: add() }`);
+                }
+            });
+
+            it('should return null for call() beyond callCount', function () {
+                expect(Subject.add).call(1e9).to.be(null);
+
+                try {
+                    expect(Subject.add).call(1e9).to.not.be(null);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected null to not be null`);
+                }
+            });
+        });
+
+        describe('calledOn', function () {
+            it('should work with a single call', function () {
+                expect(Subject.add.firstCall).to.be.calledOn(Subject);
+
+                try {
+                    expect(Subject.add.firstCall).to.not.be.calledOn(Subject);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
+                }
+            });
+        });
+
+        describe('firstCall', function () {
+            it('should operate on first call', function () {
+                expect(Subject.add).firstCall.to.be.calledOn(Subject);
+
+                try {
+                    expect(Subject.add).firstCall.to.not.be.calledOn(Subject);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
+                }
+            });
+        });
+
+        describe('secondCall', function () {
+            it('should operate on second call', function () {
+                expect(Subject.add).secondCall.to.be.calledOn(Subject);
+
+                try {
+                    expect(Subject.add).secondCall.to.not.be.calledOn(Subject);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[1] to not be calledOn { add: add() }`);
+                }
+            });
+        });
+
+        describe('thirdCall', function () {
+            it('should operate on third call', function () {
+                expect(Subject.add).thirdCall.to.be.calledOn(Subject);
+
+                try {
+                    expect(Subject.add).thirdCall.to.not.be.calledOn(Subject);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[2] to not be calledOn { add: add() }`);
+                }
+            });
+        });
+
+        describe('lastCall', function () {
+            it('should operate with multiple calls', function () {
+                expect(Subject.add).lastCall.to.be.calledOn(Subject);
+
+                try {
+                    expect(Subject.add).lastCall.to.not.be.calledOn(Subject);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[3] to not be calledOn { add: add() }`);
+                }
+            });
+        });
+    }); // spyCalls
 });

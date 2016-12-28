@@ -9,10 +9,25 @@ function timesName (n) {
     return timeNames[n] || (timeNames[n] = `${n} times`);
 }
 
+const EXACT = {
+    calledWith: 'calledWithExactly',
+    alwaysCalledWith: 'alwaysCalledWithExactly'
+};
+const MATCH = {
+    calledWith: 'calledWithMatch',
+    alwaysCalledWith: 'alwaysCalledWithMatch'
+};
+
 module.exports = {
     init (Assert, Util) {
         Assert.register({
             exactly: true,
+
+            call: {
+                invoke (spy, index) {
+                    return new Assert(spy.getCall(index), this);
+                }
+            },
 
             called: {
                 evaluate (spy, count) {
@@ -46,8 +61,25 @@ module.exports = {
                 }
             },
 
-            calledOn (spyCall, object) {
-                return spyCall.calledOn(object);
+            calledOn (spyOrCall, object) {
+                if (this._modifiers.only) {
+                    return spyOrCall.alwaysCalledOn(object);
+                }
+                return spyOrCall.calledOn(object);
+            },
+
+            calledWith (spyCall, ...args) {
+                let mod = this._modifiers;
+                let fn = mod.only ? 'alwaysCalledWith' : 'calledWith';
+
+                if (mod.match) {
+                    fn = MATCH[fn];
+                }
+                else if (mod.exactly) {
+                    fn = EXACT[fn];
+                }
+
+                return spyCall[fn](...args);
             }
         });
 
