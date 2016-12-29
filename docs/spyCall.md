@@ -36,5 +36,20 @@ The following table shows the mapping of these API's to equivalent assertions.
     <tr>
         <td>spyCall.notCalledWithMatch(a, b, ...)</td>  <td>expect(spyCall).to.not.be.match.calledWith(a, b, ...)</td>
     </tr>
+    <tr>
+        <td>spyCall.returnValue === x</td>  <td>expect(spyCall).to.return(x)</td>
+    </tr>
+    <tr>
+        <td>spyCall.returnValue > x</td>  <td>expect(spyCall).to.return.gt(x)</td>
+    </tr>
+    <tr>
+        <td>spyCall.threw()</td>  <td>expect(spyCall).to.throw()</td>
+    </tr>
+    <tr>
+        <td>spyCall.threw('Message')</td>  <td>expect(spyCall).to.throw()</td>
+    </tr>
+    <tr>
+        <td>spyCall.threw(RangeError)</td>  <td>expect(spyCall).to.throw(RangeError)</td>
+    </tr>
 </table>
 <br>

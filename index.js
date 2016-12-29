@@ -18,7 +18,18 @@ const MATCH = {
     alwaysCalledWith: 'alwaysCalledWithMatch'
 };
 
-module.exports = {
+const Export = {
+    getSpyType (thing) {
+        if (thing && thing.proxy && thing.proxy.isSinonProxy) {
+            if (thing.getCall) {
+                return 'spy';
+            }
+            return 'spyCall';
+        }
+
+        return false;
+    },
+
     init (Assert, Util) {
         Assert.register({
             exactly: true,
@@ -82,10 +93,53 @@ module.exports = {
                 return spyOrCall[fn](...args);
             },
 
+            return: {
+                evaluate (spyCall, value) {
+                    return spyCall.returnValue === value;
+                },
+
+                explain (spyCall) {
+                    this.expectation += ` (got ${spyCall.returnValue})`;
+                },
+
+                get (spyCall) {
+                    let a = new Assert(spyCall.returnValue, this, {
+                        description: `${Assert.print(spyCall)} return of`
+                    });
+debugger
+                    return a;
+                }
+            },
+
             throw: {
-                evaluate: function fn (method, ex) {
-                    //
-                    debugger;
+                evaluate: function fn (spyCall, type) {
+                    // If the method is not a spyCall, pass to original throw()
+                    // assertion:
+                    let kind = Export.getSpyType(spyCall);
+
+                    if (kind === 'spyCall') {
+                        let e = spyCall.exception;
+                        let ok = false;
+
+                        if (e) {
+                            ok = true;
+                            let msg = e.message;
+
+                            if (typeof type === 'string') {
+                                ok = (msg.indexOf(type) > -1);
+                            }
+                            else if (type) {
+                                ok = type.test(msg);
+                            }
+
+                            e.matched = ok;
+                            this._threw = e;
+                        }
+
+                        return ok;
+                    }
+
+                    return fn._super.call(this, spyCall, ...this.expected);
                 }
             }
         });
@@ -93,11 +147,13 @@ module.exports = {
         ['firstCall', 'secondCall', 'thirdCall', 'lastCall'].forEach(property => {
             Assert.register({
                 [property]: {
-                    get (spyOrCall) {
-                        return new Assert(spyOrCall[property], this);
+                    get (spy) {
+                        return new Assert(spy[property], this);
                     }
                 }
             });
         });
     }
 };
+
+module.exports = Export;

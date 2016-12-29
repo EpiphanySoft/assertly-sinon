@@ -17,8 +17,14 @@ describe('Main', function () {
     const Subject = {
         add (a, b) {
             return a + b;
+        },
+
+        boom () {
+            throw new Error('Kaboom');
         }
     };
+
+    const SUBJECT = '{ add: add(), boom: boom() }'
 
     function spy (object, method) {
         let ret = sinon.spy(object, method);
@@ -46,10 +52,12 @@ describe('Main', function () {
 
     beforeEach(function () {
         spy(Subject, 'add');
+        spy(Subject, 'boom');
     });
 
     afterEach(function () {
         Subject.add.restore();
+        Subject.boom.restore();
     });
 
     describe('called', function () {
@@ -192,6 +200,13 @@ describe('Main', function () {
 
             ret = Subject.add(3, 2);
             expect(ret).to.be(5);
+
+            try {
+                Subject.boom();
+            }
+            catch (e) {
+                // ignore... it is supposed to throw to be seen by spy
+            }
         });
 
         describe('call', function () {
@@ -202,7 +217,7 @@ describe('Main', function () {
                     expect(Subject.add).call(1).to.not.be.calledOn(Subject);
                 }
                 catch (e) {
-                    expect(e.message).to.be(`Expected add().call[1] to not be calledOn { add: add() }`);
+                    expect(e.message).to.be(`Expected add().call[1] to not be calledOn ${SUBJECT}`);
                 }
             });
 
@@ -226,7 +241,7 @@ describe('Main', function () {
                     expect(Subject.add.firstCall).to.not.be.calledOn(Subject);
                 }
                 catch (e) {
-                    expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
+                    expect(e.message).to.be(`Expected add().call[0] to not be calledOn ${SUBJECT}`);
                 }
             });
         });
@@ -239,7 +254,7 @@ describe('Main', function () {
                     expect(Subject.add).firstCall.to.not.be.calledOn(Subject);
                 }
                 catch (e) {
-                    expect(e.message).to.be(`Expected add().call[0] to not be calledOn { add: add() }`);
+                    expect(e.message).to.be(`Expected add().call[0] to not be calledOn ${SUBJECT}`);
                 }
             });
         });
@@ -252,7 +267,7 @@ describe('Main', function () {
                     expect(Subject.add).secondCall.to.not.be.calledOn(Subject);
                 }
                 catch (e) {
-                    expect(e.message).to.be(`Expected add().call[1] to not be calledOn { add: add() }`);
+                    expect(e.message).to.be(`Expected add().call[1] to not be calledOn ${SUBJECT}`);
                 }
             });
         });
@@ -265,7 +280,7 @@ describe('Main', function () {
                     expect(Subject.add).thirdCall.to.not.be.calledOn(Subject);
                 }
                 catch (e) {
-                    expect(e.message).to.be(`Expected add().call[2] to not be calledOn { add: add() }`);
+                    expect(e.message).to.be(`Expected add().call[2] to not be calledOn ${SUBJECT}`);
                 }
             });
         });
@@ -278,17 +293,48 @@ describe('Main', function () {
                     expect(Subject.add).lastCall.to.not.be.calledOn(Subject);
                 }
                 catch (e) {
-                    expect(e.message).to.be(`Expected add().call[3] to not be calledOn { add: add() }`);
+                    expect(e.message).to.be(`Expected add().call[3] to not be calledOn ${SUBJECT}`);
                 }
             });
         });
 
-        describe.only('throw', function () {
+        describe('return', function () {
+            it('should match exact values on first call', function () {
+                expect(Subject.add).firstCall.to.return(6);
+
+                try {
+                    expect(Subject.add).firstCall.to.return(7);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[0] to return 7 (got 6)`);
+                }
+            });
+
+            it('should expose return value to subsequent assertions', function () {
+                expect(Subject.add).firstCall.return.to.be(6);
+
+                try {debugger
+                    expect(Subject.add).firstCall.return.to.be(7);
+                }
+                catch (e) {
+                    expect(e.message).to.be(`Expected add().call[0] return of 6 to be 7`);
+                }
+            });
+        });
+
+        describe('throw', function () {
+            it('should report a thrown exception', function () {
+                expect(Subject.boom).firstCall.to.throw();
+
+                expect(() => {
+                    expect(Subject.boom).firstCall.to.not.throw();
+                }).to.throw(`Expected boom().call[0] to not throw but it threw 'Kaboom'`);
+            });
+
             it('should fail if not thrown', function () {
-                debugger;
                 expect(() => {
                     expect(Subject.add).firstCall.to.throw();
-                }).to.throw(`Ex`);
+                }).to.throw(`Expected add().call[0] to throw but it did not throw`);
             });
         });
     }); // spyCalls
