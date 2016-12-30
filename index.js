@@ -97,7 +97,7 @@ const API = {
 
             return: {
                 evaluate (spyOrCall, value) {
-                    let kind = API.getKind(spyCall);
+                    let kind = API.getKind(spyOrCall);
                     let mod = this._modifiers;
 
                     if (kind === 'spyCall') {
@@ -129,13 +129,14 @@ const API = {
             },
 
             throw: {
-                evaluate: function fn (spyOrCall, type) {
+                evaluate: function evaluate (spyOrCall, type) {
                     // If the method is not a spyCall, pass to original throw()
                     // assertion:
                     let ok, kind = API.getKind(spyOrCall);
 
                     if (kind === 'spyCall') {
-                        ok = fn._super.call(this, spyOrCall.exception, type);
+                        let e = spyOrCall.exception;
+                        ok = e ? evaluate._super.call(this, e, type) : false;
                     }
                     else if (kind === 'spy') {
                         let exceptions = spyOrCall.exceptions;
@@ -154,7 +155,7 @@ const API = {
                                 // expect(spy).to.always.throw(type);
                                 // ==> all calls must throw a matching exception
                                 for (let e of exceptions) {
-                                    if (!fn._super.call(this, e, type)) {
+                                    if (!evaluate._super.call(this, e, type)) {
                                         ok = false;
                                         break;
                                     }
@@ -168,7 +169,7 @@ const API = {
                             // expect(spy).to.only.throw(type);
                             // ==> all calls that throw must match exception
                             for (let e of exceptions) {
-                                if (e && !fn._super.call(this, e, type)) {
+                                if (e && !evaluate._super.call(this, e, type)) {
                                     ok = false;
                                     break;
                                 }
@@ -180,7 +181,7 @@ const API = {
                             ok = false;
 
                             for (let e of exceptions) {
-                                if (e && fn._super.call(this, e, type)) {
+                                if (e && evaluate._super.call(this, e, type)) {
                                     ok = true;
                                     break;
                                 }
@@ -191,7 +192,7 @@ const API = {
                         // ==> at least one call must throw
                     }
                     else {
-                        ok = fn._super.call(this, spyOrCall, ...this.expected);
+                        ok = evaluate._super.call(this, spyOrCall, ...this.expected);
                     }
 
                     return ok;

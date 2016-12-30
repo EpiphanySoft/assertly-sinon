@@ -9,6 +9,7 @@ const sinon = require('sinon');
 describe('Main', function () {
     class A extends Assert {}
 
+    A.fullCallStacks = true;
     A.setup();
     A.register(Addon.init);
 
@@ -196,6 +197,21 @@ describe('Main', function () {
                     expect(Subject.add).to.not.only.return(6);
                 }).
                 to.match.throw(`Expected add() to not only return 6`);
+            });
+
+            it('should match all returns using always modifier', function () {
+                let ret = Subject.add(2, 4);
+                expect(ret).to.be(6);
+
+                ret = Subject.add(0, 6);
+                expect(ret).to.be(6);
+
+                expect(Subject.add).to.always.return(6);
+
+                expect(() => {
+                    expect(Subject.add).to.not.always.return(6);
+                }).
+                to.match.throw(`Expected add() to not always return 6`);
             });
 
             it('should not match mixed returns using only modifier', function () {
