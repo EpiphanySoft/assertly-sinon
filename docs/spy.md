@@ -38,16 +38,16 @@ The following table shows the mapping of these API's to equivalent assertions.
         <td>spy.calledWithMatch(a, b, ...)</td>  <td>expect(spy).to.be.match.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spy.alwaysCalledOn(obj)</td>  <td>expect(spy).to.be.only.calledOn(obj)</td>
+        <td>spy.alwaysCalledOn(obj)</td>  <td>expect(spy).to.be.always.calledOn(obj)</td>
     </tr>
     <tr>
-        <td>spy.alwaysCalledWith(a, b, ...)</td>  <td>expect(spy).to.be.only.calledWith(a, b, ...)</td>
+        <td>spy.alwaysCalledWith(a, b, ...)</td>  <td>expect(spy).to.be.always.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spy.alwaysCalledWithExactly(a, b, ...)</td>  <td>expect(spy).to.be.only.exactly.calledWith(a, b, ...)</td>
+        <td>spy.alwaysCalledWithExactly(a, b, ...)</td>  <td>expect(spy).to.be.always.exactly.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spy.alwaysCalledWithMatch(a, b, ...)</td>  <td>expect(spy).to.be.only.match.calledWith(a, b, ...)</td>
+        <td>spy.alwaysCalledWithMatch(a, b, ...)</td>  <td>expect(spy).to.be.always.match.calledWith(a, b, ...)</td>
     </tr>
     <tr>
         <td>spy.neverCalledWith(a, b, ...)</td>  <td>expect(spy).to.not.be.calledWith(a, b, ...)</td>

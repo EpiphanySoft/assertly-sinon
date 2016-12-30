@@ -18,8 +18,8 @@ const MATCH = {
     alwaysCalledWith: 'alwaysCalledWithMatch'
 };
 
-const Export = {
-    getSpyType (thing) {
+const API = {
+    getKind (thing) {
         if (thing && thing.proxy && thing.proxy.isSinonProxy) {
             if (thing.getCall) {
                 return 'spy';
@@ -32,6 +32,7 @@ const Export = {
 
     init (Assert, Util) {
         Assert.register({
+            always: true,
             exactly: true,
 
             call: {
@@ -73,7 +74,8 @@ const Export = {
             },
 
             calledOn (spyOrCall, object) {
-                if (this._modifiers.only) {
+                let mod = this._modifiers;
+                if (mod.only || mod.always) {
                     return spyOrCall.alwaysCalledOn(object);
                 }
                 return spyOrCall.calledOn(object);
@@ -81,7 +83,7 @@ const Export = {
 
             calledWith (spyOrCall, ...args) {
                 let mod = this._modifiers;
-                let fn = mod.only ? 'alwaysCalledWith' : 'calledWith';
+                let fn = (mod.only || mod.always) ? 'alwaysCalledWith' : 'calledWith';
 
                 if (mod.match) {
                     fn = MATCH[fn];
@@ -94,52 +96,105 @@ const Export = {
             },
 
             return: {
-                evaluate (spyCall, value) {
-                    return spyCall.returnValue === value;
+                evaluate (spyOrCall, value) {
+                    let kind = API.getKind(spyCall);
+                    let mod = this._modifiers;
+
+                    if (kind === 'spyCall') {
+                        return spyOrCall.returnValue === value;
+                    }
+
+                    if (mod.only || mod.always) {
+                        return spyOrCall.alwaysReturned(value);
+                    }
+
+                    return spyOrCall.returned(value);
                 },
 
-                explain (spyCall) {
-                    this.expectation += ` (got ${spyCall.returnValue})`;
+                explain (spyOrCall) {
+                    let kind = API.getKind(spyOrCall);
+
+                    if (kind === 'spyCall') {
+                        this.expectation += ` (got ${spyOrCall.returnValue})`;
+                    }
                 },
 
                 get (spyCall) {
-                    let a = new Assert(spyCall.returnValue, this, {
+                    // expect(spy).firstCall.return.to.be.above(4);
+                    // ==> only works for spyCall
+                    return new Assert(spyCall.returnValue, this, {
                         description: `${Assert.print(spyCall)} return of`
                     });
-debugger
-                    return a;
                 }
             },
 
             throw: {
-                evaluate: function fn (spyCall, type) {
+                evaluate: function fn (spyOrCall, type) {
                     // If the method is not a spyCall, pass to original throw()
                     // assertion:
-                    let kind = Export.getSpyType(spyCall);
+                    let ok, kind = API.getKind(spyOrCall);
 
                     if (kind === 'spyCall') {
-                        let e = spyCall.exception;
-                        let ok = false;
+                        ok = fn._super.call(this, spyOrCall.exception, type);
+                    }
+                    else if (kind === 'spy') {
+                        let exceptions = spyOrCall.exceptions;
+                        let mod = this._modifiers;
+                        let only = mod.only;
 
-                        if (e) {
-                            ok = true;
-                            let msg = e.message;
-
-                            if (typeof type === 'string') {
-                                ok = (msg.indexOf(type) > -1);
-                            }
-                            else if (type) {
-                                ok = type.test(msg);
-                            }
-
-                            e.matched = ok;
-                            this._threw = e;
+                        if (!(ok = spyOrCall.threw())) {
+                            return false;  // never threw... so we're done here
                         }
+                        // ok is true...
 
-                        return ok;
+                        if (mod.always || (only && !type)) {
+                            ok = spyOrCall.alwaysThrew();
+
+                            if (ok && type) {
+                                // expect(spy).to.always.throw(type);
+                                // ==> all calls must throw a matching exception
+                                for (let e of exceptions) {
+                                    if (!fn._super.call(this, e, type)) {
+                                        ok = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            // else
+                            // expect(spy).to.always.throw();
+                            // expect(spy).to.only.throw();
+                        }
+                        else if (only) {
+                            // expect(spy).to.only.throw(type);
+                            // ==> all calls that throw must match exception
+                            for (let e of exceptions) {
+                                if (e && !fn._super.call(this, e, type)) {
+                                    ok = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (type) {
+                            // expect(spy).to.throw(type);
+                            // ==> at least one call must throw a matching exception
+                            ok = false;
+
+                            for (let e of exceptions) {
+                                if (e && fn._super.call(this, e, type)) {
+                                    ok = true;
+                                    break;
+                                }
+                            }
+                        }
+                        // else {
+                        // expect(spy).to.throw();
+                        // ==> at least one call must throw
+                    }
+                    else {
+                        ok = fn._super.call(this, spyOrCall, ...this.expected);
                     }
 
-                    return fn._super.call(this, spyCall, ...this.expected);
+                    return ok;
                 }
             }
         });
@@ -156,4 +211,4 @@ debugger
     }
 };
 
-module.exports = Export;
+module.exports = API;
