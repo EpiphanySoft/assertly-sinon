@@ -24,7 +24,7 @@ To install using `yarn`:
 To use this add-on, pass its `init()` method to `Assert.register()` like so:
 
     const Assert = require('assertly');
-    const AssertlySinon = require('my-assertly-addon');
+    const AssertlySinon = require('assertly-sinon');
 
     Assert.register(AssertlySinon.init);
 
