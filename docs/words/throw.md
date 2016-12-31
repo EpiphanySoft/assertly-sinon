@@ -2,7 +2,8 @@
 
 **`throw([ criteria ])`**
 
-The `throw` assertion checks that the target method threw an exception:
+This add-on extends the standard `throw` assertion provided by Assertly. With this
+add-on, the `throw` assertion can check that a spy or spyCall threw an exception:
 
     expect(spyOrCall).to.throw();
 
