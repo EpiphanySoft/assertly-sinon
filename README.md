@@ -1,5 +1,8 @@
 # assertly-sinon
-An [assertly](https://github.com/dongryphon/assertly) add-on [module](https://www.npmjs.com/package/assertly) for the [sinon](https://github.com/sinonjs/sinon) [module](https://www.npmjs.com/package/sinon).
+An [assertly](https://github.com/dongryphon/assertly)
+([npm](https://www.npmjs.com/package/assertly)) add-on
+[package](https://www.npmjs.com/package/assertly-sinon) for
+[sinon](https://github.com/sinonjs/sinon) ([npm](https://www.npmjs.com/package/sinon)).
 
 If you are using sinon, this module expands Assertly with new words specific to testing
 spy and spyCall objects created by sinon. For example:
