@@ -20,30 +20,63 @@ const MATCH = {
 
 const API = {
     getKind (thing) {
-        if (thing && thing.proxy && thing.proxy.isSinonProxy) {
-            if (thing.getCall) {
-                return 'spy';
+        if (thing) {
+            if (thing.isSinonProxy || (thing.proxy && thing.proxy.isSinonProxy)) {
+                if (thing.getCall) {
+                    return 'spy';
+                }
+                return 'spyCall';
             }
-            return 'spyCall';
+
+            if (thing.message && typeof thing.test === 'function' &&
+                typeof thing.and === 'function' && typeof thing.or === 'function') {
+                //TODO maybe there is a better way to recognize a matcher...
+                return 'matcher';
+            }
         }
 
         return false;
     },
 
+    prettySpy (spy, name) {
+        let getCall = spy.getCall;
+
+        name = name || spy.displayName || spy.printf(`%n`);
+
+        spy.inspect = function () {
+            return `${name}()`;
+        };
+
+        spy.getCall = function (index) {
+            let call = getCall.call(this, index);
+
+            if (call) {
+                call.inspect = function () {
+                    return `${name}().call[${index}]`;
+                };
+            }
+
+            return call;
+        };
+
+        return spy;
+    },
+
     init (Assert, Util) {
         Assert.register({
             always: true,
-            exactly: true,
 
             call: {
                 invoke (spy, index) {
-                    return new Assert(spy.getCall(index), this);
+                    if (spy && spy.getCall) {
+                        return new Assert(spy.getCall(index), this);
+                    }
                 }
             },
 
             called: {
                 evaluate (spy, count) {
-                    let calls = spy.callCount;
+                    let calls = spy && spy.callCount;
                     return (count == null) ? calls > 0 : calls === count;
                 },
 
@@ -74,41 +107,100 @@ const API = {
             },
 
             calledOn (spyOrCall, object) {
-                let mod = this._modifiers;
-                if (mod.only || mod.always) {
-                    return spyOrCall.alwaysCalledOn(object);
+                let kind = API.getKind(spyOrCall);
+
+                if (kind === 'spy') {
+                    let mod = this._modifiers;
+
+                    if (mod.only || mod.always) {
+                        return spyOrCall.alwaysCalledOn(object);
+                    }
+
+                    return spyOrCall.calledOn(object);
                 }
-                return spyOrCall.calledOn(object);
+
+                if (kind === 'spyCall') {
+                    return spyOrCall.calledOn(object);
+                }
             },
 
             calledWith (spyOrCall, ...args) {
-                let mod = this._modifiers;
-                let fn = (mod.only || mod.always) ? 'alwaysCalledWith' : 'calledWith';
+                let kind = API.getKind(spyOrCall);
 
-                if (mod.match) {
-                    fn = MATCH[fn];
-                }
-                else if (mod.exactly) {
-                    fn = EXACT[fn];
-                }
+                if (kind === 'spy' || kind === 'spyCall') {
+                    let mod = this._modifiers;
+                    let fn = (mod.only || mod.always) ? 'alwaysCalledWith' : 'calledWith';
 
-                return spyOrCall[fn](...args);
+                    if (mod.match) {
+                        fn = MATCH[fn];
+                    }
+                    else if (mod.exactly) {
+                        fn = EXACT[fn];
+                    }
+
+                    return spyOrCall[fn](...args);
+                }
             },
 
             return: {
                 evaluate (spyOrCall, value) {
                     let kind = API.getKind(spyOrCall);
                     let mod = this._modifiers;
+                    let noValue = !this.expected.length;
+                    let matcher = !noValue && API.getKind(value) === 'matcher' && value;
 
                     if (kind === 'spyCall') {
-                        return spyOrCall.returnValue === value;
+                        if (spyOrCall.exception) {
+                            return false;
+                        }
+
+                        let r = spyOrCall.returnValue;
+                        return noValue || (matcher ? matcher.test(r) : (r === value));
                     }
 
-                    if (mod.only || mod.always) {
-                        return spyOrCall.alwaysReturned(value);
+                    if (kind === 'spy') {
+                        let values = spyOrCall.returnValues;
+                        let exceptions = spyOrCall.exceptions;
+                        let always = mod.always;
+                        let only = always || mod.only;
+                        let n = 0;
+
+                        for (let i = spyOrCall.callCount; i-- > 0; ) {
+                            if (exceptions[i]) {
+                                if (always) {
+                                    return false;
+                                }
+                                continue;
+                            }
+
+                            let r = values[i];
+                            r = noValue || (matcher ? matcher.test(r) : (r === value));
+                            ++n;
+
+                            if (r) {
+                                // For non-always and non-only, one match is good...
+                                if (!only) {
+                                    return true;
+                                }
+                            }
+                            else if (only) {
+                                // For always or only, one mis-match is bad...
+                                return false;
+                            }
+                        }
+
+                        // If "always" or "only", we get here if all returns matched...
+                        // Otherwise, we get here if we no returns matched...
+                        if (only) {
+                            return n > 0;
+                        }
+
+                        return false;
                     }
 
-                    return spyOrCall.returned(value);
+                    // Not a thing we recognize, but to support combining add-ons,
+                    // just report failure...
+                    return false;
                 },
 
                 explain (spyOrCall) {
@@ -120,11 +212,15 @@ const API = {
                 },
 
                 get (spyCall) {
-                    // expect(spy).firstCall.return.to.be.above(4);
-                    // ==> only works for spyCall
-                    return new Assert(spyCall.returnValue, this, {
-                        description: `${Assert.print(spyCall)} return of`
-                    });
+                    let kind = API.getKind(spyCall);
+
+                    if (kind === 'spyCall') {
+                        // expect(spy).firstCall.return.to.be.above(4);
+                        // ==> only works for spyCall
+                        return new Assert(spyCall.returnValue, this, {
+                            description: `${Assert.print(spyCall)} return of`
+                        });
+                    }
                 }
             },
 
@@ -141,55 +237,53 @@ const API = {
                     else if (kind === 'spy') {
                         let exceptions = spyOrCall.exceptions;
                         let mod = this._modifiers;
+                        let always = mod.always;
                         let only = mod.only;
+                        let matcher = type && API.getKind(type) === 'matcher' && type;
+                        let n = 0;
+                        let first;
 
-                        if (!(ok = spyOrCall.threw())) {
-                            return false;  // never threw... so we're done here
-                        }
-                        // ok is true...
-
-                        if (mod.always || (only && !type)) {
-                            ok = spyOrCall.alwaysThrew();
-
-                            if (ok && type) {
+                        for (let e of exceptions) {
+                            if (!e) {
                                 // expect(spy).to.always.throw(type);
+                                // expect(spy).to.only.throw();
                                 // ==> all calls must throw a matching exception
-                                for (let e of exceptions) {
-                                    if (!evaluate._super.call(this, e, type)) {
-                                        ok = false;
-                                        break;
-                                    }
+                                if (always || (only && !type)) {
+                                    this._threw = null;
+                                    return false;
                                 }
+                                continue;
                             }
-                            // else
-                            // expect(spy).to.always.throw();
-                            // expect(spy).to.only.throw();
-                        }
-                        else if (only) {
-                            // expect(spy).to.only.throw(type);
-                            // ==> all calls that throw must match exception
-                            for (let e of exceptions) {
-                                if (e && !evaluate._super.call(this, e, type)) {
-                                    ok = false;
-                                    break;
-                                }
-                            }
-                        }
-                        else if (type) {
-                            // expect(spy).to.throw(type);
-                            // ==> at least one call must throw a matching exception
-                            ok = false;
 
-                            for (let e of exceptions) {
-                                if (e && evaluate._super.call(this, e, type)) {
-                                    ok = true;
-                                    break;
+                            ++n;
+                            if (matcher) {
+                                e.matched = matcher.test(e);
+                                this._threw = e;
+                            }
+                            else {
+                                evaluate._super.call(this, e, type);
+                            }
+
+                            if (e.matched) {
+                                if (!always && !only) {
+                                    return true;
                                 }
+                                first = first || e;
+                            }
+                            else if (always || only) {
+                                return false;
                             }
                         }
-                        // else {
-                        // expect(spy).to.throw();
-                        // ==> at least one call must throw
+
+                        if (first) {
+                            this._threw = first;
+                        }
+
+                        if (always || only) {
+                            return n > 0;
+                        }
+
+                        return false;
                     }
                     else {
                         ok = evaluate._super.call(this, spyOrCall, ...this.expected);
@@ -204,7 +298,11 @@ const API = {
             Assert.register({
                 [property]: {
                     get (spy) {
-                        return new Assert(spy[property], this);
+                        let kind = API.getKind(spy);
+
+                        if (kind === 'spy') {
+                            return new Assert(spy[property], this);
+                        }
                     }
                 }
             });

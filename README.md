@@ -26,44 +26,6 @@ Specifically, the following naming convention is used:
 See these documents for the mapping of the sinon [Spy API](docs/spy.md) and
 [Spy Call API](docs/spyCall.md).
 
-### call
-
-**`call(n)`**
-
-This method will form create a new `Assert` instance for the n'th call to the spy.
-
-    expect(spy).call(2).to.be.calledOn(obj);
-
-### called
-
-**`called(n)`**
-
-This assertion allows you to check whether a spy was called:
-
-    expect(spy).to.be.called();
-
-Or whether a spy was called a certain number of times:
-
-    expect(spy).to.be.called(2);
-
-Or was not called:
-
-    expect(spy).to.not.be.called();
-
-### calledOn
-
-**`calledOn(obj)`**
-
-This assertion checks that the spy method's `this` reference was `obj`:
-
-    expect(spyOrCall).to.be.calledOn(obj);
-
-If `spyOrCall` is the
-
-Or whether a spy was called a certain number of times:
-
-    expect(spy).to.be.called(2);
-
-Or was not called:
-
-    expect(spy).to.not.be.called();
+ - [`call`](docs/words/call.md)
+ - [`called`](docs/words/called.md)
+ - [`calledOn`](docs/words/calledOn.md)
