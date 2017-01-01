@@ -18,7 +18,8 @@ tested using `===`.
 
 For a spy, this will verify that at least one call to the method returned `42`.
 
-A spyCall can use `return` as a property in the dot-chain:
+A spyCall can use `return` as a property in the dot-chain to allow for more precise
+matching:
 
     expect(spyCall).return.to.be.above(10);
 
@@ -41,8 +42,8 @@ For example:
     // Same as above
     expect(spy).to.only.return();
 
-    // All calls must return 42 w/o exceptions:
+    // All calls must return 42 (any exception is a failure):
     expect(spy).to.always.return(42);
 
-    // All calls that return a value (ie, do not throw) must return 42:
+    // All calls that do not throw must return 42:
     expect(spy).to.only.return(42);

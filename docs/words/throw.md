@@ -12,9 +12,9 @@ the case of a spy (not a spyCall), this assertion will pass if *any* calls made 
 the method threw an exception.
 
 If the `criteria` is passed, the exception object is tested. If a `sinon.matcher`
-is provided, it is used to test the exception. Otherwise, the normal `throw`
-[matching](https://github.com/dongryphon/assertly/tree/master/docs/words/throw.md) is
-used.
+is provided as the `criteria`, it is used to test the exception. Otherwise, the normal
+`throw` [matching](https://github.com/dongryphon/assertly/tree/master/docs/words/throw.md)
+is used.
 
     expect(spyOrCall).to.throw('Bad things happened');
 
@@ -35,11 +35,13 @@ For example:
     // All calls threw an exception:
     expect(spy).to.always.throw();
 
-    // Same as above
+    // Same as above:
     expect(spy).to.only.throw();
 
-    // All calls threw an error with this substring in the message:
+    // All calls threw an error with this substring in the message (any normal
+    // returns will be a failure):
     expect(spy).to.always.throw('Bad things happened');
 
-    // All calls that threw an error had this substring in the message:
+    // All calls that threw an error had this substring in the message (normal
+    // returns are ignored):
     expect(spy).to.only.throw('Bad things happened');

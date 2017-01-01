@@ -2,7 +2,10 @@
 
 **`calledOn(obj)`**
 
-This assertion checks that the spy method's `this` reference was `obj`:
+This assertion checks that the spy or spyCall method received a particular `this`
+reference.
+
+For example:
 
     expect(spyOrCall).to.be.calledOn(obj);
 
