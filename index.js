@@ -1,24 +1,6 @@
 'use strict';
 
-const timeNames = ['', 'once', 'twice', 'thrice'];
-
-function timesName (n) {
-    if (n == null) {
-        return '';
-    }
-    return timeNames[n] || (timeNames[n] = `${n} times`);
-}
-
-const EXACT = {
-    calledWith: 'calledWithExactly',
-    alwaysCalledWith: 'alwaysCalledWithExactly'
-};
-const MATCH = {
-    calledWith: 'calledWithMatch',
-    alwaysCalledWith: 'alwaysCalledWithMatch'
-};
-
-const API = {
+const API = module.exports = {
     getKind (thing) {
         if (thing) {
             if (thing.isSinonProxy || (thing.proxy && thing.proxy.isSinonProxy)) {
@@ -62,6 +44,15 @@ const API = {
         return spy;
     },
 
+    timesName (n) {
+        if (n == null) {
+            return '';
+        }
+        return API._timeNames[n] || (API._timeNames[n] = `${n} times`);
+    },
+
+    _timeNames: ['', 'once', 'twice', 'thrice'],
+
     init (Assert, Util) {
         Assert.register({
             always: true,
@@ -99,10 +90,10 @@ const API = {
                         (not ? ' and was called ' : '');
 
                     if (phrase) {
-                        phrase += timesName(spy.callCount);
+                        phrase += API.timesName(spy.callCount);
                     }
 
-                    this.expectation = `${timesName(count)}${phrase}`;
+                    this.expectation = `${API.timesName(count)}${phrase}`;
                 }
             },
 
@@ -126,19 +117,52 @@ const API = {
 
             calledWith (spyOrCall, ...args) {
                 let kind = API.getKind(spyOrCall);
+                let spy = kind === 'spy' && spyOrCall;
 
-                if (kind === 'spy' || kind === 'spyCall') {
+                if (spy || kind === 'spyCall') {
+                    let calls = spy ? spy.getCalls() : [ spyOrCall ];
                     let mod = this._modifiers;
-                    let fn = (mod.only || mod.always) ? 'alwaysCalledWith' : 'calledWith';
+                    let always = mod.always || mod.only;
+                    let fn = mod.match ? 'calledWithMatch': 'calledWith';
+                    let matches = 0;
+                    let k, n = args.length;
 
-                    if (mod.match) {
-                        fn = MATCH[fn];
-                    }
-                    else if (mod.exactly) {
-                        fn = EXACT[fn];
+                    if (!calls.length) {
+                        // no calls, so the "always" or "only" guys are declared
+                        // passing since there were no violators.
+                        //
+                        //      expect(spy).to.only.be.calledWith(42);
+                        //
+                        // Never called is ... shrug :)
+                        //
+                        // But given:
+                        //
+                        //      expect(spy).to.be.calledWith(42);
+                        //
+                        // Never called is clearly not expected to pass...
+
+                        return !!always;
                     }
 
-                    return spyOrCall[fn](...args);
+                    for (let call of calls) {
+                        k = call.args.length;
+
+                        if ((mod.exactly ? n === k : n <= k) && call[fn](...args)) {
+                            ++matches;
+
+                            if (!always) {
+                                return true;
+                            }
+                        }
+                        else if (always) {
+                            return false;
+                        }
+                    }
+
+                    // Since there are calls, with "always" set we only get here if
+                    // all calls matched. Without "always" we get here in any case.
+                    // So this check ensures there was at least one match.
+                    return matches > 0;
                 }
             },
 
@@ -309,5 +333,3 @@ const API = {
         });
     }
 };
-
-module.exports = API;

@@ -8,7 +8,7 @@ The following table shows the mapping of these API's to equivalent assertions.
 <br>
 <table style="font-family:monospace">
     <tr>
-        <td>spy.callCount == 7</td>  <td>expect(spy).to.be.called(7)</td>
+        <td>spy.callCount === 7</td>  <td>expect(spy).to.be.called(7)</td>
     </tr>
     <tr>
         <td>spy.called</td>  <td>expect(spy).to.be.called()</td>

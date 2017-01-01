@@ -59,9 +59,6 @@ describe('Main', function () {
         Subject.sometimes.restore();
     });
 
-    debugger
-    let xx = sinon.match.same({});
-
     describe('spy', function () {
         describe('called', function () {
             it('should work with no calls', function () {
@@ -167,6 +164,304 @@ describe('Main', function () {
                 to.exactly.throw(`Expected add() to be called 4 times not twice`);
             });
         });
+
+        describe('calledOn', function () {
+            it('should work with a single call', function () {
+                expect(Subject.add).to.be.calledOn(Subject);
+
+                expect(() => {
+                    expect(Subject.add).to.not.be.calledOn(Subject);
+                }).
+                to.exactly.throw(`Expected add().call[0] to not be calledOn ${SUBJECT}`);
+            });
+        });
+
+        describe('calledWith', function () {
+            describe('alone', function () {
+                beforeEach(function () {
+                    let ret = Subject.add(2, 4);
+                    expect(ret).to.be(6);
+
+                    ret = Subject.add(5, 6);
+                    expect(ret).to.be(11);
+                });
+
+                it('should pass if args are exactly the same', function () {
+                    expect(Subject.add).to.be.calledWith(2, 4);
+                });
+
+                it('should pass if args are the same but fewer', function () {
+                    expect(Subject.add).to.be.calledWith(2);
+                });
+
+                it('should fail if args are exactly the same but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.be.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to be calledWith [ 2, 4, 6 ]`);
+                });
+            });
+
+            describe('exactly', function () {
+                beforeEach(function () {
+                    let ret = Subject.add(2, 4);
+                    expect(ret).to.be(6);
+
+                    ret = Subject.add(5, 6);
+                    expect(ret).to.be(11);
+                });
+
+                it('should pass if args are exactly the same', function () {
+                    expect(Subject.add).to.be.exactly.calledWith(2, 4);
+                });
+
+                it('should reject if args are the same but fewer', function () {
+                    expect(() => {
+                        expect(Subject.add).to.be.exactly.calledWith(2);
+                    }).
+                    to.throw(`Expected add() to be exactly calledWith 2`);
+                });
+
+                it('should fail if args are exactly the same but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.be.exactly.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to be exactly calledWith [ 2, 4, 6 ]`);
+                });
+            });
+
+            describe('match', function () {
+                beforeEach(function () {
+                    let ret = Subject.add('2', '4');
+                    expect(ret).to.be('24');
+
+                    ret = Subject.add(5, 6);
+                    expect(ret).to.be(11);
+                });
+
+                it('should pass if args are the same with conversion', function () {
+                    expect(Subject.add).to.match.calledWith(2, 4);
+
+                    expect(() => {
+                        expect(Subject.add).to.be.calledWith(2, 4);
+                    }).
+                    to.exactly.throw(`Expected add() to be calledWith [ 2, 4 ]`);
+                });
+
+                it('should pass if args are the same with conversion but fewer', function () {
+                    expect(Subject.add).to.match.calledWith(2);
+
+                    expect(() => {
+                        expect(Subject.add).to.be.calledWith(2);
+                    }).
+                    to.exactly.throw(`Expected add() to be calledWith 2`);
+                });
+
+                it('should fail if args are the same with conversion but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.match.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to match calledWith [ 2, 4, 6 ]`);
+                });
+            });
+
+            describe('match exactly', function () {
+                beforeEach(function () {
+                    let ret = Subject.add('2', '4');
+                    expect(ret).to.be('24');
+
+                    ret = Subject.add(5, 6);
+                    expect(ret).to.be(11);
+                });
+
+                it('should pass if args are the same with conversion', function () {
+                    expect(Subject.add).to.exactly.match.calledWith(2, 4);
+                });
+
+                it('should fail if args are the same with conversion but fewer', function () {
+                    expect(() => {
+                        expect(Subject.add).to.match.exactly.calledWith(2);
+                    }).
+                    to.exactly.throw(`Expected add() to match exactly calledWith 2`);
+                });
+
+                it('should fail if args are the same with conversion but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.exactly.match.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to exactly match calledWith [ 2, 4, 6 ]`);
+                });
+            });
+        }); // calledWith
+
+        describe('calledWith always', function () {
+            describe('alone', function () {
+                beforeEach(function () {
+                    Subject.add(2, 4);
+                    Subject.add(2, 4);
+                });
+
+                it('should pass if args are exactly the same', function () {
+                    expect(Subject.add).to.always.be.calledWith(2, 4);
+                });
+
+                it('should pass if args are the same but fewer', function () {
+                    expect(Subject.add).to.always.be.calledWith(2);
+                });
+
+                it('should fail if args are exactly the same but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.always.be.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to always be calledWith [ 2, 4, 6 ]`);
+                });
+
+                it('should fail if not all calls match', function () {
+                    Subject.add(3, 5);
+
+                    expect(() => {
+                        expect(Subject.add).to.always.be.calledWith(2, 4);
+                    }).
+                    to.throw(`Expected add() to always be calledWith [ 2, 4 ]`);
+                });
+            });
+
+            describe('exactly', function () {
+                beforeEach(function () {
+                    Subject.add(2, 4);
+                    Subject.add(2, 4);
+                });
+
+                it('should pass if args are exactly the same', function () {
+                    expect(Subject.add).to.be.always.exactly.calledWith(2, 4);
+                });
+
+                it('should reject if args are the same but fewer', function () {
+                    expect(() => {
+                        expect(Subject.add).to.be.always.exactly.calledWith(2);
+                    }).
+                    to.throw(`Expected add() to be always exactly calledWith 2`);
+                });
+
+                it('should fail if args are exactly the same but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.be.always.exactly.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to be always exactly calledWith [ 2, 4, 6 ]`);
+                });
+
+                it('should reject if only some are fewer', function () {
+                    Subject.add(2);
+
+                    expect(() => {
+                        expect(Subject.add).to.be.always.exactly.calledWith(2, 4);
+                    }).
+                    to.throw(`Expected add() to be always exactly calledWith [ 2, 4 ]`);
+                });
+
+                it('should reject if only some are more', function () {
+                    Subject.add(2, 4, 6);
+
+                    expect(() => {
+                        expect(Subject.add).to.be.always.exactly.calledWith(2, 4);
+                    }).
+                    to.throw(`Expected add() to be always exactly calledWith [ 2, 4 ]`);
+                });
+            });
+
+            describe('match', function () {
+                beforeEach(function () {
+                    Subject.add('2', '4');
+                    Subject.add('2', '4');
+                });
+
+                it('should pass if args are the same with conversion', function () {
+                    expect(Subject.add).to.always.match.calledWith(2, 4);
+
+                    expect(() => {
+                        expect(Subject.add).to.be.always.calledWith(2, 4);
+                    }).
+                    to.exactly.throw(`Expected add() to be always calledWith [ 2, 4 ]`);
+                });
+
+                it('should pass if args are the same with conversion but fewer', function () {
+                    expect(Subject.add).to.always.match.calledWith(2);
+
+                    expect(() => {
+                        expect(Subject.add).to.always.be.calledWith(2);
+                    }).
+                    to.exactly.throw(`Expected add() to always be calledWith 2`);
+                });
+
+                it('should fail if args are the same with conversion but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.always.match.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to always match calledWith [ 2, 4, 6 ]`);
+                });
+
+                it('should fail if only some do not match', function () {
+                    Subject.add(3, 5);
+
+                    expect(() => {
+                        expect(Subject.add).to.always.match.calledWith(2, 4);
+                    }).
+                    to.throw(`Expected add() to always match calledWith [ 2, 4 ]`);
+                });
+            });
+
+            describe('match exactly', function () {
+                beforeEach(function () {
+                    Subject.add('2', '4');
+                    Subject.add('2', '4');
+                });
+
+                it('should pass if args are the same with conversion', function () {
+                    expect(Subject.add).to.always.exactly.match.calledWith(2, 4);
+                });
+
+                it('should fail if args are the same with conversion but fewer', function () {
+                    expect(() => {
+                        expect(Subject.add).to.always.match.exactly.calledWith(2);
+                    }).
+                    to.exactly.throw(`Expected add() to always match exactly calledWith 2`);
+                });
+
+                it('should fail if args are the same with conversion but more', function () {
+                    expect(() => {
+                        expect(Subject.add).to.always.exactly.match.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add() to always exactly match calledWith [ 2, 4, 6 ]`);
+                });
+
+                it('should reject if only some are fewer', function () {
+                    Subject.add(2);
+
+                    expect(() => {
+                        expect(Subject.add).to.always.exactly.match.calledWith(2, 4);
+                    }).
+                    to.throw(`Expected add() to always exactly match calledWith [ 2, 4 ]`);
+                });
+
+                it('should reject if only some are more', function () {
+                    Subject.add(2, 4, 6);
+
+                    expect(() => {
+                        expect(Subject.add).to.always.match.exactly.calledWith(2, 4);
+                    }).
+                    to.throw(`Expected add() to always match exactly calledWith [ 2, 4 ]`);
+                });
+
+                it('should fail if only some do not match', function () {
+                    Subject.add(3, 5);
+
+                    expect(() => {
+                        expect(Subject.add).to.exactly.always.match.calledWith(2, 4);
+                    }).
+                    to.throw(`Expected add() to exactly always match calledWith [ 2, 4 ]`);
+                });
+            });
+        }); // calledWith always
 
         describe('return', function () {
             it('should match at least one return', function () {
@@ -416,7 +711,7 @@ describe('Main', function () {
                     }).
                     to.exactly.throw(`Expected sometimes() to always return`);
                 });
-            });
+            });  // always
 
             describe('only', function () {
                 it('should reject if no call throws', function () {
@@ -535,8 +830,8 @@ describe('Main', function () {
                     }).
                     to.exactly.throw(`Expected sometimes() to always return`);
                 });
-            });
-        });
+            }); // only
+        });  // throw
     }); // spy
 
     describe('spyCall', function () {
@@ -586,6 +881,100 @@ describe('Main', function () {
                 to.exactly.throw(`Expected add().call[0] to not be calledOn ${SUBJECT}`);
             });
         });
+
+        describe('calledWith', function () {
+            it('should pass if args are exactly the same', function () {
+                expect(Subject.add.firstCall).to.be.calledWith(2, 4);
+            });
+
+            it('should pass if args are the same but fewer', function () {
+                expect(Subject.add.firstCall).to.be.calledWith(2);
+            });
+
+            it('should fail if args are exactly the same but more', function () {
+                expect(() => {
+                    expect(Subject.add.firstCall).to.be.calledWith(2, 4, 6);
+                }).
+                to.throw(`Expected add().call[0] to be calledWith [ 2, 4, 6 ]`);
+            });
+
+            describe('exactly', function () {
+                it('should pass if args are exactly the same', function () {
+                    expect(Subject.add.firstCall).to.be.exactly.calledWith(2, 4);
+                });
+
+                it('should reject if args are the same but fewer', function () {
+                    expect(() => {
+                        expect(Subject.add.firstCall).to.be.exactly.calledWith(2);
+                    }).
+                    to.throw(`Expected add().call[0] to be exactly calledWith 2`);
+                });
+
+                it('should fail if args are exactly the same but more', function () {
+                    expect(() => {
+                        expect(Subject.add.firstCall).to.be.exactly.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add().call[0] to be exactly calledWith [ 2, 4, 6 ]`);
+                });
+            });
+
+            describe('match', function () {
+                beforeEach(function () {
+                    let ret = Subject.add('2', '4');
+                    expect(ret).to.be('24');
+                });
+
+                it('should pass if args are the same with conversion', function () {
+                    expect(Subject.add.lastCall).to.match.calledWith(2, 4);
+
+                    expect(() => {
+                        expect(Subject.add.lastCall).to.be.calledWith(2, 4);
+                    }).
+                    to.exactly.throw(`Expected add().call[4] to be calledWith [ 2, 4 ]`);
+                });
+
+                it('should pass if args are the same with conversion but fewer', function () {
+                    expect(Subject.add.lastCall).to.match.calledWith(2);
+
+                    expect(() => {
+                        expect(Subject.add.lastCall).to.be.calledWith(2);
+                    }).
+                    to.exactly.throw(`Expected add().call[4] to be calledWith 2`);
+                });
+
+                it('should fail if args are the same with conversion but more', function () {
+                    expect(() => {
+                        expect(Subject.add.lastCall).to.match.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add().call[4] to match calledWith [ 2, 4, 6 ]`);
+                });
+            });
+
+            describe('match exactly', function () {
+                beforeEach(function () {
+                    let ret = Subject.add('2', '4');
+                    expect(ret).to.be('24');
+                });
+
+                it('should pass if args are the same with conversion', function () {
+                    expect(Subject.add.lastCall).to.exactly.match.calledWith(2, 4);
+                });
+
+                it('should fail if args are the same with conversion but fewer', function () {
+                    expect(() => {
+                        expect(Subject.add.lastCall).to.match.exactly.calledWith(2);
+                    }).
+                    to.exactly.throw(`Expected add().call[4] to match exactly calledWith 2`);
+                });
+
+                it('should fail if args are the same with conversion but more', function () {
+                    expect(() => {
+                        expect(Subject.add.lastCall).to.exactly.match.calledWith(2, 4, 6);
+                    }).
+                    to.throw(`Expected add().call[4] to exactly match calledWith [ 2, 4, 6 ]`);
+                });
+            });
+        }); // calledWith
 
         describe('firstCall', function () {
             it('should operate on first call', function () {
