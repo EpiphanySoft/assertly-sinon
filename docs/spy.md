@@ -1,9 +1,27 @@
 # Sinon Spy API Mapping
 
 The sinon [Spy API](http://sinonjs.org/docs/#spies-api) provides many methods that
-return `true` if the spy was used in a particular way.
+return `true` if the spy was used in a particular way. The API's are used to implement
+these assertions:
 
-The following table shows the mapping of these API's to equivalent assertions.
+ - [`call`](docs/words/call.md)
+ - [`called`](docs/words/called.md)
+ - [`calledOn`](docs/words/calledOn.md)
+ - [`calledWith`](docs/words/calledWith.md)
+ - [`return`](docs/words/return.md)
+ - [`throw`](docs/words/throw.md)
+
+And these properties:
+
+ - [`firstCall`](docs/words/firstCall.md)
+ - [`secondCall`](docs/words/secondCall.md)
+ - [`thirdCall`](docs/words/thirdCall.md)
+ - [`lastCall`](docs/words/lastCall.md)
+
+When the Spy API returns a Spy Call, see [spyCall](./spyCall.md).
+
+If you are familiar with the sinon API, however, the following table shows the mapping
+of those API's to equivalent assertions.
 
 <br>
 <table style="font-family:monospace">
@@ -23,7 +41,16 @@ The following table shows the mapping of these API's to equivalent assertions.
         <td>spy.calledThrice</td>  <td>expect(spy).to.be.called(3)</td>
     </tr>
     <tr>
-        <td>spy.firstCall (et al)</td>  <td>expect(spy).firstCall.to.be...</td>
+        <td>spy.firstCall</td>  <td>expect(spy).firstCall.to.be...</td>
+    </tr>
+    <tr>
+        <td>spy.secondCall</td>  <td>expect(spy).secondCall.to.be...</td>
+    </tr>
+    <tr>
+        <td>spy.thirdCall</td>  <td>expect(spy).thirdCall.to.be...</td>
+    </tr>
+    <tr>
+        <td>spy.lastCall</td>  <td>expect(spy).lastCall.to.be...</td>
     </tr>
     <tr>
         <td>spy.calledOn(obj)</td>  <td>expect(spy).to.be.calledOn(obj)</td>
@@ -35,7 +62,7 @@ The following table shows the mapping of these API's to equivalent assertions.
         <td>spy.calledWithExactly(a, b, ...)</td>  <td>expect(spy).to.be.exactly.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spy.calledWithMatch(a, b, ...)</td>  <td>expect(spy).to.be.match.calledWith(a, b, ...)</td>
+        <td>spy.calledWithMatch(a, b, ...)</td>  <td>expect(spy).to.match.calledWith(a, b, ...)</td>
     </tr>
     <tr>
         <td>spy.alwaysCalledOn(obj)</td>  <td>expect(spy).to.be.always.calledOn(obj)</td>
@@ -47,15 +74,18 @@ The following table shows the mapping of these API's to equivalent assertions.
         <td>spy.alwaysCalledWithExactly(a, b, ...)</td>  <td>expect(spy).to.be.always.exactly.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spy.alwaysCalledWithMatch(a, b, ...)</td>  <td>expect(spy).to.be.always.match.calledWith(a, b, ...)</td>
+        <td>spy.alwaysCalledWithMatch(a, b, ...)</td>  <td>expect(spy).to.always.match.calledWith(a, b, ...)</td>
     </tr>
     <tr>
         <td>spy.neverCalledWith(a, b, ...)</td>  <td>expect(spy).to.not.be.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spy.neverCalledWithMatch(a, b, ...)</td>  <td>expect(spy).to.not.be.match.calledWith(a, b, ...)</td>
+        <td>spy.neverCalledWithMatch(a, b, ...)</td>  <td>expect(spy).to.not.match.calledWith(a, b, ...)</td>
     </tr>
 </table>
 <br>
 
-When the Spy API returns a Spy Call, see [spyCall](./spyCall.md).
+With sinon, there is no API that combines `always`, `match` and `exactly`, however,
+this can be done with this add-on:
+
+    expect(spy).to.always.exactly.match.calledWith(a, b, ...);

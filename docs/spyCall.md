@@ -14,7 +14,13 @@ The second is to start with a [spy](./spy.md) and use helpers provided by this a
 
 In either case, the `Assert` instance is now directed at a `spyCall`.
 
-The following table shows the mapping of these API's to equivalent assertions.
+ - [`calledOn`](docs/words/calledOn.md)
+ - [`calledWith`](docs/words/calledWith.md)
+ - [`return`](docs/words/return.md)
+ - [`throw`](docs/words/throw.md)
+
+If you are familiar with the sinon API, the following table shows the mapping of
+those API's to equivalent assertions.
 
 <br>
 <table style="font-family:monospace">

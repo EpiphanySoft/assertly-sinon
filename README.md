@@ -45,17 +45,9 @@ provided by this add-on are designed to make BDD-style assertions for sinon's sp
 and spyCalls. To make it clear which sinon types work in specific contexts, the
 names used for parameters are chosen to convey this as shown below:
 
-<table>
-    <tr>
-        <td>spy</td><td>A spy created by <tt>sinon.spy()</tt></td>
-    </tr>
-    <tr>
-        <td>spyCall</td><td>A call to a spy returned by <tt>sinon.spy().getCall()</tt></td>
-    </tr>
-    <tr>
-        <td>spyOrCall</td><td>Either a <tt>spy</tt> or a <tt>spyCall</tt></td>
-    </tr>
-</table>
+ - `spy` - A spy created by `sinon.spy()`
+ - `spyCall` - A call to a spy returned by `sinon.spy().getCall()`
+ - `spyOrCall` - Either a `spy` or a `spyCall`
 
 See these documents for the mapping of the sinon [Spy API](docs/spy.md) and
 [Spy Call API](docs/spyCall.md).
