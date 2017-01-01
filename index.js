@@ -53,7 +53,7 @@ const API = module.exports = {
 
     _timeNames: ['', 'once', 'twice', 'thrice'],
 
-    init (Assert, Util) {
+    init (Assert) {
         Assert.register({
             always: true,
 

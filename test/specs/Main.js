@@ -64,10 +64,17 @@ describe('Main', function () {
             it('should work with no calls', function () {
                 expect(Subject.add).to.not.be.called();
 
+                let called = false;
+
                 expect(() => {
+                    called = true;
                     expect(Subject.add).to.be.called();
                 }).
                 to.exactly.throw(`Expected add() to be called`);
+
+                // Since we expand throw() we want to make sure the base-level usage
+                // is not impacted:
+                expect(called).to.be(true);
             });
 
             it('should work with a single call', function () {
