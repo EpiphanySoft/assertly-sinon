@@ -166,13 +166,54 @@ describe('Main', function () {
         });
 
         describe('calledOn', function () {
-            it('should work with a single call', function () {
-                expect(Subject.add).to.be.calledOn(Subject);
+            describe('alone', function () {
+                it('should work with a single call', function () {
+                    Subject.add(2, 4);
 
-                expect(() => {
-                    expect(Subject.add).to.not.be.calledOn(Subject);
-                }).
-                to.exactly.throw(`Expected add().call[0] to not be calledOn ${SUBJECT}`);
+                    expect(Subject.add).to.be.calledOn(Subject);
+
+                    expect(() => {
+                        expect(Subject.add).to.not.be.calledOn(Subject);
+                    }).
+                    to.exactly.throw(`Expected add() to not be calledOn ${SUBJECT}`);
+                });
+
+                it('should work if not all calls use the matching object', function () {
+                    Subject.add(2, 4);
+                    Subject.add.call({}, 2, 4);
+
+                    expect(Subject.add).to.be.calledOn(Subject);
+
+                    expect(() => {
+                        expect(Subject.add).to.not.be.calledOn(Subject);
+                    }).
+                    to.exactly.throw(`Expected add() to not be calledOn ${SUBJECT}`);
+                });
+            });
+
+            describe('always', function () {
+                it('should pass with a single call', function () {
+                    Subject.add(2, 4);
+
+                    expect(Subject.add).to.always.be.calledOn(Subject);
+
+                    expect(() => {
+                        expect(Subject.add).to.not.always.be.calledOn(Subject);
+                    }).
+                    to.exactly.throw(`Expected add() to not always be calledOn ${SUBJECT}`);
+                });
+
+                it('should fail if not all calls use the matching object', function () {
+                    Subject.add(2, 4);
+                    Subject.add.call({}, 2, 4);
+
+                    expect(Subject.add).to.not.always.be.calledOn(Subject);
+
+                    expect(() => {
+                        expect(Subject.add).to.always.be.calledOn(Subject);
+                    }).
+                    to.exactly.throw(`Expected add() to always be calledOn ${SUBJECT}`);
+                });
             });
         });
 
