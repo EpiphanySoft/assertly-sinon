@@ -3,21 +3,23 @@
 The sinon [Spy Call API](http://sinonjs.org/docs/#spycall) provides many methods that
 return `true` if a particular call to a spy matched certain criteria.
 
-There are two ways to arrive at a `spyCall`. The first is to pass a `spyCall` to the
-`expect()` method:
+There are two ways to state assertions on a `spyCall`. The first is to pass a `spyCall`
+directly to the `expect()` method:
 
     expect(spy.firstCall).to.be...
 
-The second is to start with a [spy](./spy.md) and use helpers provided by this add-on:
+The second is to use `epxect` on the [spy](./spy.md) and use the helper properties
+such as `firstCall`:
 
     expect(spy).firstCall.to.be...
 
-In either case, the `Assert` instance is now directed at a `spyCall`.
+In either case, the `Assert` instance is now directed at a `spyCall` and the following
+assertions can be used:
 
- - [`calledOn`](docs/words/calledOn.md)
- - [`calledWith`](docs/words/calledWith.md)
- - [`return`](docs/words/return.md)
- - [`throw`](docs/words/throw.md)
+ - [`calledOn`](words/calledOn.md)
+ - [`calledWith`](words/calledWith.md)
+ - [`return`](words/return.md)
+ - [`throw`](words/throw.md)
 
 If you are familiar with the sinon API, the following table shows the mapping of
 those API's to equivalent assertions.
@@ -34,13 +36,13 @@ those API's to equivalent assertions.
         <td>spyCall.calledWithExactly(a, b, ...)</td>  <td>expect(spyCall).to.be.exactly.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spyCall.calledWithMatch(a, b, ...)</td>  <td>expect(spyCall).to.be.match.calledWith(a, b, ...)</td>
+        <td>spyCall.calledWithMatch(a, b, ...)</td>  <td>expect(spyCall).to.match.calledWith(a, b, ...)</td>
     </tr>
     <tr>
         <td>spyCall.notCalledWith(a, b, ...)</td>  <td>expect(spyCall).to.not.be.calledWith(a, b, ...)</td>
     </tr>
     <tr>
-        <td>spyCall.notCalledWithMatch(a, b, ...)</td>  <td>expect(spyCall).to.not.be.match.calledWith(a, b, ...)</td>
+        <td>spyCall.notCalledWithMatch(a, b, ...)</td>  <td>expect(spyCall).to.not.match.calledWith(a, b, ...)</td>
     </tr>
     <tr>
         <td>spyCall.returnValue === x</td>  <td>expect(spyCall).to.return(x)</td>

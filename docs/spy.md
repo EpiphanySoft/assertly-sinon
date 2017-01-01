@@ -4,19 +4,19 @@ The sinon [Spy API](http://sinonjs.org/docs/#spies-api) provides many methods th
 return `true` if the spy was used in a particular way. The API's are used to implement
 these assertions:
 
- - [`call`](docs/words/call.md)
- - [`called`](docs/words/called.md)
- - [`calledOn`](docs/words/calledOn.md)
- - [`calledWith`](docs/words/calledWith.md)
- - [`return`](docs/words/return.md)
- - [`throw`](docs/words/throw.md)
+ - [`call`](words/call.md)
+ - [`called`](words/called.md)
+ - [`calledOn`](words/calledOn.md)
+ - [`calledWith`](words/calledWith.md)
+ - [`return`](words/return.md)
+ - [`throw`](words/throw.md)
 
 And these properties:
 
- - [`firstCall`](docs/words/firstCall.md)
- - [`secondCall`](docs/words/secondCall.md)
- - [`thirdCall`](docs/words/thirdCall.md)
- - [`lastCall`](docs/words/lastCall.md)
+ - [`firstCall`](words/firstCall.md)
+ - [`secondCall`](words/secondCall.md)
+ - [`thirdCall`](words/thirdCall.md)
+ - [`lastCall`](words/lastCall.md)
 
 When the Spy API returns a Spy Call, see [spyCall](./spyCall.md).
 
