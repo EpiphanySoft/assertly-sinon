@@ -4,6 +4,11 @@ An [assertly](https://github.com/dongryphon/assertly)
 [package](https://www.npmjs.com/package/assertly-sinon) for
 [sinon](https://github.com/sinonjs/sinon) ([npm](https://www.npmjs.com/package/sinon)).
 
+[![Build Status](https://travis-ci.org/dongryphon/assertly-sinon.svg?branch=master)](https://travis-ci.org/dongryphon/assertly-sinon)
+[![Dependencies Status](https://david-dm.org/dongryphon/assertly-sinon/status.svg)](https://david-dm.org/dongryphon/assertly-sinon)
+[![npm version](https://badge.fury.io/js/assertly-sinon.svg)](https://badge.fury.io/js/assertly-sinon)
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
+
 If you are using sinon, this module expands Assertly with new words specific to testing
 spy and spyCall objects created by sinon. For example:
 
